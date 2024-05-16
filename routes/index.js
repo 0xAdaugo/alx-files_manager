@@ -1,17 +1,34 @@
-import express from 'express';
-import AppController from '../controllers/AppController.js';
-import UsersController from '../controllers/UsersController.js';
-import AuthController from '../controllers/AuthController.js'; // Add this line to import AuthController
+import { Router } from 'express';
+import AppController from '../controllers/AppController'; // Import AppController for handling application-related routes
+import UsersController from '../controllers/UsersController'; // Import UsersController for handling user-related routes
+import AuthController from '../controllers/AuthController'; // Import AuthController for handling authentication-related routes
+import FilesController from '../controllers/FilesController'; // Import FilesController for handling file-related routes
 
-const router = express.Router();
+const router = Router();
 
-// Define routes
-router.get('/status', AppController.getStatus);
-router.get('/stats', AppController.getStats);
-router.post('/users', UsersController.postNew);
-router.get('/connect', AuthController.getConnect); // Add this line for GET /connect endpoint
-router.get('/disconnect', AuthController.getDisconnect); // Add this line for GET /disconnect endpoint
-router.get('/users/me', UsersController.getMe); // Add this line for GET /users/me endpoint
+router.get('/status', AppController.getStatus); // Route to get the status of the application
 
-export default router;
+router.get('/stats', AppController.getStats); // Route to get statistics of the application
+
+router.post('/users', UsersController.postNew); // Route to create a new user
+
+router.get('/connect', AuthController.getConnect); // Route to connect/authenticate a user
+
+router.get('/disconnect', AuthController.getDisconnect); // Route to disconnect a user
+
+router.get('/users/me', UsersController.getMe); // Route to get information about the authenticated user
+
+router.post('/files', FilesController.postUpload); // Route to upload a file
+
+router.get('/files/:id', FilesController.getShow); // Route to get details of a specific file
+
+router.get('/files', FilesController.getIndex); // Route to get a list of files
+
+router.put('/files/:id/publish', FilesController.putPublish); // Route to publish a file
+
+router.put('/files/:id/unpublish', FilesController.putUnpublish); // Route to unpublish a file
+
+router.get('/files/:id/data', FilesController.getFile); // Route to get the data/content of a file
+
+module.exports = router;
 

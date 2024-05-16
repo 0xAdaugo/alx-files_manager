@@ -1,23 +1,19 @@
-import myRedisClient from '../utils/redis.js';
-import myDBClient from '../utils/db.js';
+import redisClient from '../utils/redis'; // Import the redis client utility for interacting with Redis
+import dbClient from '../utils/db'; // Import the database client utility for interacting with MongoDB
 
-const AppController = {
-  // Endpoint to check status of Redis and DB
-  getStatus: async (req, res) => {
-    const redisAlive = myRedisClient.isAlive();
-    const dbAlive = myDBClient.isDBAlive();
-    const status = { redis: redisAlive, db: dbAlive };
-    res.status(200).json(status);
-  },
-
-  // Endpoint to get stats (number of users and files)
-  getStats: async (req, res) => {
-    const usersCount = await myDBClient.numberOfUsers();
-    const filesCount = await myDBClient.numberOfFiles();
-    const stats = { users: usersCount, files: filesCount };
-    res.status(200).json(stats);
+class AppController {
+  // Method to get the status of the application
+  static getStatus(request, response) {
+    response.status(200).json({ redis: redisClient.isAlive(), db: dbClient.isAlive() });
   }
-};
 
-export default AppController;
+  // Method to get statistics of the application
+  static async getStats(request, response) {
+    const usersNum = await dbClient.nbUsers(); // Retrieve the number of users from the database
+    const filesNum = await dbClient.nbFiles(); // Retrieve the number of files from the database
+    response.status(200).json({ users: usersNum, files: filesNum });
+  }
+}
+
+module.exports = AppController;
 

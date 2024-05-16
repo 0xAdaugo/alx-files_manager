@@ -1,53 +1,46 @@
+// Importing MongoClient for MongoDB operations
 import { MongoClient } from 'mongodb';
 
-// Define environment variables with default values
-const DEFAULT_HOST = 'localhost';
-const DEFAULT_PORT = 27017;
-const DEFAULT_DATABASE = 'files_manager';
+// Defining constants for database connection
+const HOST = process.env.DB_HOST || 'localhost'; // Default host
+const PORT = process.env.DB_PORT || 27017; // Default port
+const DATABASE = process.env.DB_DATABASE || 'files_manager'; // Default database name
+const url = `mongodb://${HOST}:${PORT}`; // Constructing MongoDB connection URL
 
-// Construct MongoDB connection URL
-const dbHost = process.env.DB_HOST || DEFAULT_HOST;
-const dbPort = process.env.DB_PORT || DEFAULT_PORT;
-const dbDatabase = process.env.DB_DATABASE || DEFAULT_DATABASE;
-const url = `mongodb://${dbHost}:${dbPort}`;
-
-// Define the DBClient class
-class MyDBClient {
+// DBClient class for managing MongoDB connection and database operations
+class DBClient {
   constructor() {
-    // Create a new MongoDB client
-    this.mongoClient = new MongoClient(url, { useUnifiedTopology: true, useNewUrlParser: true });
-    // Connect to the MongoDB instance
-    this.mongoClient.connect().then(() => {
-      // Access the database
-      this.database = this.mongoClient.db(dbDatabase);
-    }).catch((error) => {
-      console.log(`Error connecting to MongoDB: ${error}`);
+    // Initializing MongoDB client with connection options
+    this.client = new MongoClient(url, { useUnifiedTopology: true, useNewUrlParser: true });
+    // Connecting to MongoDB server
+    this.client.connect().then(() => {
+      this.db = this.client.db(`${DATABASE}`); // Getting the database instance
+    }).catch((err) => {
+      console.log(err); // Logging any errors during connection
     });
   }
 
-  // Check if the MongoDB connection is alive
-  isDBAlive() {
-    return this.mongoClient.isConnected();
+  // Method to check if the database connection is alive
+  isAlive() {
+    return this.client.isConnected(); // Returning the connection status
   }
 
-  // Retrieve the number of users from the 'users' collection
-  async numberOfUsers() {
-    const usersCollection = this.database.collection('users');
-    const userCount = await usersCollection.countDocuments();
-    return userCount;
+  // Method to get the number of users in the database
+  async nbUsers() {
+    const users = this.db.collection('users'); // Getting the users collection
+    const usersNum = await users.countDocuments(); // Counting the number of documents in the users collection
+    return usersNum; // Returning the number of users
   }
 
-  // Retrieve the number of files from the 'files' collection
-  async numberOfFiles() {
-    const filesCollection = this.database.collection('files');
-    const fileCount = await filesCollection.countDocuments();
-    return fileCount;
+  // Method to get the number of files in the database
+  async nbFiles() {
+    const files = this.db.collection('files'); // Getting the files collection
+    const filesNum = await files.countDocuments(); // Counting the number of documents in the files collection
+    return filesNum; // Returning the number of files
   }
 }
 
-// Create an instance of the DBClient
-const myDBClient = new MyDBClient();
-
-// Export the DBClient instance
-export default myDBClient;
+// Creating an instance of the DBClient class
+const dbClient = new DBClient();
+module.exports = dbClient; // Exporting the DBClient instance
 
